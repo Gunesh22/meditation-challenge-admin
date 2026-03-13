@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Participants can read/write their own data
+    match /participants/{phone} {
+      allow read, write: if true;
+    }
+    // Counters are readable by all, writable by all
+    match /counters/{doc} {
+      allow read, write: if true;
+    }
+    // Admin collections (Authentication bypassed as requested)
+    match /admin_settings/{doc} {
+      allow read, write: if true;
+    }
+    match /challenges/{challenge} {
+      allow read, write: if true;
+    }
+    match /enrollments/{enrollment} {
+      allow read, write: if true;
+    }
+  }
+}
