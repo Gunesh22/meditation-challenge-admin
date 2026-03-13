@@ -8,6 +8,7 @@ import * as XLSX from 'xlsx';
 interface Challenge {
     id: string;
     name: string;
+    title?: string;
     durationDays: number;
 }
 
@@ -92,7 +93,7 @@ export default function Dashboard() {
                 let activeToday = 0;
                 let completedUsers = 0;
 
-                const todayStr = new Date().toDateString();
+
 
                 // Array to count completions per day to build chart and find edge drops
                 const dayCounts = new Array(duration).fill(0);

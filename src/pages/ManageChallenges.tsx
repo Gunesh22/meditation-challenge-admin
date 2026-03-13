@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { PlusCircle, Search, Trash2, Calendar, LayoutList, RefreshCw, CheckCircle, Edit2, X, Filter } from 'lucide-react';
+import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore'; // updateDoc kept for handleSaveChallenge
+import { PlusCircle, Search, Trash2, Calendar, LayoutList, RefreshCw, CheckCircle, Edit2, X } from 'lucide-react';
 
 interface Challenge {
     id: string;
@@ -144,16 +144,7 @@ export default function ManageChallenges() {
         }
     };
 
-    const toggleActive = async (id: string, currentState: boolean) => {
-        try {
-            await updateDoc(doc(db, 'challenges', id), {
-                isActive: !currentState
-            });
-            fetchChallenges();
-        } catch (err) {
-            console.error('Error updating status', err);
-        }
-    };
+
 
     if (loading) {
         return (
