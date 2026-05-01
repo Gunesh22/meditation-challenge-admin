@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, UserCheck, CheckCircle, TrendingDown, RefreshCw, Download, Calendar, BarChart3, Clock, AlertTriangle, ShieldCheck, Heart, Activity, PieChart as PieIcon, BarChart2 } from 'lucide-react';
+import { Users, CheckCircle, TrendingDown, RefreshCw, Download, Clock, AlertTriangle, ShieldCheck, Heart, Activity, BarChart2 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { db } from '../firebase';
 import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
@@ -112,7 +112,7 @@ export default function Dashboard() {
                 const streakTally: Record<number, number> = { 1: 0, 3: 0, 7: 0, 14: 0, 21: 0 };
                 const moodTally: Record<string, number> = { peaceful: 0, deep: 0, calm: 0, distracted: 0, difficult: 0 };
                 const cohortTally: Record<string, number> = {};
-                const hourTally: Record<number, number> = new Array(24).fill(0);
+                const hourTally: number[] = new Array(24).fill(0);
 
                 const todayStr = new Date().toISOString().split('T')[0];
                 const sevenDaysAgo = new Date();
