@@ -345,3 +345,51 @@ body {
   font-size: 14px;
   font-weight: 500;
 }
+
+/* Dashboard Tabs */
+.dashboard-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 12px;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  background: #f1f5f9;
+  color: var(--text-primary);
+}
+
+.tab-btn.active {
+  background: var(--accent);
+  color: white;
+}
+
+.tab-btn svg {
+  opacity: 0.8;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.glass-panel {
+  animation: fadeIn 0.4s ease-out;
+}
