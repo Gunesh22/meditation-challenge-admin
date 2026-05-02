@@ -35,6 +35,10 @@ export default function Dashboard() {
     const [activeTab, setActiveTab] = useState<'overview' | 'retention' | 'sentiment' | 'audit'>('overview');
     const [rawEnrollments, setRawEnrollments] = useState<any[]>([]);
     const [userProfiles, setUserProfiles] = useState<Record<string, any>>({});
+    
+    // Lazy Load States
+    const [analyticsLoaded, setAnalyticsLoaded] = useState(false);
+    const [loadingAnalytics, setLoadingAnalytics] = useState(false);
 
     // 1. Fetch available challenges to populate the dropdown
     useEffect(() => {
@@ -56,29 +60,22 @@ export default function Dashboard() {
             }
         };
 
-        const fetchUsers = async () => {
+        fetchChallenges();
+    }, []);
+
+    // 2. Fetch heavy enrollments ONLY when requested
+    const loadAdvancedAnalytics = async () => {
+        if (!selectedChallengeId) return;
+        setLoadingAnalytics(true);
             try {
+                // Fetch Users for mapping names
                 const uSnap = await getDocs(collection(db, 'users'));
                 const map: Record<string, any> = {};
                 uSnap.forEach(doc => {
                     map[doc.id] = doc.data();
                 });
                 setUserProfiles(map);
-            } catch (err) {
-                console.error('Failed to fetch users', err);
-            }
-        };
 
-        fetchChallenges();
-        fetchUsers();
-    }, []);
-
-    // 2. Fetch enrollments for the specifically selected challenge
-    useEffect(() => {
-        if (!selectedChallengeId) return;
-
-        const fetchEnrollments = async () => {
-            try {
                 const selectedChallenge = challenges.find(c => c.id === selectedChallengeId);
                 if (!selectedChallenge) return;
 
@@ -225,11 +222,17 @@ export default function Dashboard() {
 
             } catch (err) {
                 console.error('Error fetching analytics', err);
+            } finally {
+                setLoadingAnalytics(false);
+                setAnalyticsLoaded(true);
             }
-        };
+    };
 
-        fetchEnrollments();
-    }, [selectedChallengeId, challenges]);
+    // Reset analytics when challenge changes
+    useEffect(() => {
+        setAnalyticsLoaded(false);
+        setRawEnrollments([]);
+    }, [selectedChallengeId]);
 
     const handleExportExcel = () => {
         const challengeName = challenges.find(c => c.id === selectedChallengeId)?.title || "Challenge";
@@ -335,6 +338,26 @@ export default function Dashboard() {
                 <div className="glass-panel" style={{ padding: '50px', textAlign: 'center' }}>
                     <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>No Challenges Found</h2>
                     <p style={{ color: 'var(--text-secondary)' }}>Create your first challenge in the Manage Challenges tab to start tracking analytics!</p>
+                </div>
+            ) : !analyticsLoaded ? (
+                <div className="glass-panel" style={{ padding: '60px 20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <BarChart2 size={48} color="var(--text-secondary)" style={{ marginBottom: '16px', opacity: 0.5 }} />
+                    <h2 style={{ fontSize: '22px', marginBottom: '12px' }}>Generate Analytics Report</h2>
+                    <p style={{ color: 'var(--text-secondary)', maxWidth: '500px', marginBottom: '24px', lineHeight: '1.6' }}>
+                        To minimize database costs, advanced analytics are generated on-demand. Loading this report will download current participation data and consume <strong>~{stats.totalUsers > 0 ? stats.totalUsers : 1000} database reads</strong>.
+                    </p>
+                    <button 
+                        className="glass-button" 
+                        onClick={loadAdvancedAnalytics}
+                        disabled={loadingAnalytics}
+                        style={{ padding: '12px 24px', fontSize: '16px' }}
+                    >
+                        {loadingAnalytics ? (
+                            <><RefreshCw className="animate-spin" size={20} /> Processing Data...</>
+                        ) : (
+                            <><Activity size={20} /> Load Detailed Analytics</>
+                        )}
+                    </button>
                 </div>
             ) : (
                 <>
