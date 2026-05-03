@@ -27,6 +27,7 @@ export default function Dashboard() {
     });
 
     const [chartData, setChartData] = useState<{ day: string, active: number }[]>([]);
+    const [exactChartData, setExactChartData] = useState<{ day: string, count: number }[]>([]);
     const [streakData, setStreakData] = useState<{ streak: string, count: number }[]>([]);
     const [sentimentData, setSentimentData] = useState<{ mood: string, value: number, color: string }[]>([]);
     const [cohortData, setCohortData] = useState<{ period: string, count: number }[]>([]);
@@ -106,6 +107,7 @@ export default function Dashboard() {
                 let dormantCount = 0;
 
                 const dayCounts = new Array(duration).fill(0);
+                const exactDayCounts = new Array(duration).fill(0);
                 const streakTally: Record<number, number> = { 1: 0, 3: 0, 7: 0, 14: 0, 21: 0 };
                 const moodTally: Record<string, number> = { peaceful: 0, deep: 0, calm: 0, distracted: 0, difficult: 0 };
                 const cohortTally: Record<string, number> = {};
@@ -132,6 +134,9 @@ export default function Dashboard() {
                     // Tally for Retention Chart
                     for (let i = 1; i <= duration; i++) {
                         if (progressKeys.length >= i) dayCounts[i - 1]++;
+                    }
+                    if (progressKeys.length > 0 && progressKeys.length <= duration) {
+                        exactDayCounts[progressKeys.length - 1]++;
                     }
 
                     // --- 2. Advanced Retention (Streaks) ---
@@ -203,6 +208,7 @@ export default function Dashboard() {
 
                 // Set Chart Datas
                 setChartData(dayCounts.map((count, index) => ({ day: `Day ${index + 1}`, active: count })));
+                setExactChartData(exactDayCounts.map((count, index) => ({ day: `Day ${index + 1}`, count })));
                 setStreakData([
                     { streak: '1+ Day', count: streakTally[1] },
                     { streak: '3+ Days', count: streakTally[3] },
@@ -446,6 +452,37 @@ export default function Dashboard() {
                                             />
                                             <Area type="step" dataKey="active" stroke="var(--accent)" strokeWidth={2} fillOpacity={1} fill="url(#colorActive)" />
                                         </AreaChart>
+                                    </ResponsiveContainer>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="glass-panel" style={{ marginTop: '24px' }}>
+                            <div style={{ padding: '24px 24px 0 24px' }}>
+                                <h2 style={{ fontSize: '18px' }}>Exact Completion Distribution</h2>
+                                <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '4px' }}>Shows the exact number of people who have completed precisely X days.</p>
+                            </div>
+                            <div className="chart-container">
+                                {stats.totalUsers === 0 ? (
+                                    <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)' }}>
+                                        No active enrollments for this challenge yet.
+                                    </div>
+                                ) : (
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart data={exactChartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                                            <XAxis dataKey="day" stroke="var(--text-secondary)" tick={{ fontSize: 12 }} tickMargin={10} axisLine={false} tickLine={false} />
+                                            <YAxis stroke="var(--text-secondary)" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+                                            <Tooltip
+                                                contentStyle={{
+                                                    backgroundColor: 'var(--bg-container)',
+                                                    border: '1px solid var(--border-color)',
+                                                    borderRadius: '8px',
+                                                    boxShadow: 'var(--shadow-md)'
+                                                }}
+                                            />
+                                            <Bar dataKey="count" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+                                        </BarChart>
                                     </ResponsiveContainer>
                                 )}
                             </div>
